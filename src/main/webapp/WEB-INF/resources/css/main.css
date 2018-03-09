@@ -1,0 +1,55 @@
+.container-wrapper {
+    height: 80%;
+    margin: auto;
+    margin-top: 80px;
+    margin-bottom: 300px;
+}
+
+.home-image {
+    display: block;
+    width: 100% !important; /*overwrite the other rules dealing with width so that this one takes effect */
+    height: auto !important; /*overwrite the other rules dealing with width so that this one takes effect */
+}
+
+.table {
+    table-layout: fixed; /*fixed width of teach column*/
+    overflow: auto;
+}
+
+.table th {
+    text-align: center;
+}
+
+.table td {
+    text-align: center;
+    background: whitesmoke;
+    /*display: block;*/
+    overflow: hidden;
+    text-overflow: ellipsis; /* When the text overflows of the table, the overflow will not be shown and there will be "..." */
+    white-space: nowrap;
+}
+
+/* fix fixed-bar */
+/*body { padding-top: 70px; }
+@media screen and (max-width: 768px) {
+    body { padding-top: 70px; }
+}*/
+
+/* fix fixed-bar jumping to in-page anchor issue */
+/* *[id]:before {
+    display: block;
+    content: " ";
+    margin-top: -75px;
+    height: 75px;
+    visibility: hidden;
+}*/
+
+.login-box {
+    text-align: center;
+}
+
+.login-container {
+    width: 40%;
+    margin: auto;
+    margin-top: 100px;
+}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+      http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+
+    <var name="order" class="com.tisho.music.store.model.CustomerOrder" />
+
+    <action-state id="addCartToOrder">
+        <!-- In the Spring container we have cartDaoImpl bean defined.
+             We call its method validate() to check cartId to return a cartId.
+             The method must be implemented in CartDaoImpl.
+             Go in OrderController to see where the cartId comes from.
+             The resulting cart will be stored into order.cart.
+        -->
+        <evaluate expression="cartDaoImpl.validate(requestParameters.cartId)" result="order.cart" />
+
+        <!-- If we have an IOException we are transfered to invalidCartWarning state.
+             If we don't have IOException, we go to the collectionCustomerInfo state.
+        -->
+        <transition to="invalidCartWarning" on-exception="java.io.IOException" />
+        <transition to="collectCustomerInfo" />
+    </action-state>
+
+    <!-- These view=""s are JSP files which are located in the /WEB-INF/flows/checkout/ dir, i.e. near this XML -->
+    <view-state id="collectCustomerInfo" view="collectCustomerInfo.jsp" model="order">
+        <!-- on="" is a condition. If customerInfoCollected is present, then we go to to="collectShippingDetail" page -->
+        <!-- Basically in the JSP, this is the "Next" button. -->
+        <transition on="customerInfoCollected" to="collectShippingDetail" />
+        <!-- And in the JSP this is the "Back" button.
+             Later I discover that we don't need this line here, but I keep it for explanation.
+        -->
+        <!--<transition on="backToCollectCustomerInfo" to="collectCustomerInfo" /> -->
+    </view-state>
+
+    <view-state id="collectShippingDetail" view="collectShippingDetail.jsp" model="order">
+        <transition on="shippingDetailCollected" to="orderConfirmation" />
+        <transition on="backToCollectCustomerInfo" to="collectCustomerInfo" />
+    </view-state>
+
+    <view-state id="orderConfirmation">
+        <transition on="orderConfirmed" to="processOrder" />
+        <transition on="backToCollectShippingDetail" to="collectShippingDetail" />
+    </view-state>
+    
+    <action-state id="processOrder">
+        <evaluate expression="cartItemDaoImpl.removeAllCartItems(order.cart)" />
+        <transition to="thankCustomer" />
+    </action-state>
+
+    <view-state id="thankCustomer" model="order">
+        <transition to="endState" />
+    </view-state>
+
+    <!-- This indicates the end of the flow. -->
+    <end-state id="endState" />
+
+    <view-state id="invalidCartWarning">
+        <transition to="endState" />
+    </view-state>
+    
+    <end-state id="cancelCheckout" view="checkoutCancelled.jsp" />
+
+    <global-transitions>
+        <transition on="cancel" to="cancelCheckout" />
+    </global-transitions>
+
+    <!-- Whenever you see any view-state without a view,
+         the default behavior of Spring is to take the id="" and append ".jsp"
+    -->
+    
+</flow>
